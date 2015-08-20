@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{fe571a10-7619-4857-83b0-f9dba7adae19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{eb320a1c-0c9e-49a4-9a77-0e8faa2850af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\i18n">
+      <UniqueIdentifier>{3e842bd5-6217-4a4c-adc6-244f6d7c3cb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\stats">
+      <UniqueIdentifier>{7a3a20f5-22b3-488d-82d6-78ab6d16b086}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\output">
+      <UniqueIdentifier>{72ec1ce4-7a9e-47a8-a5c5-27984dec7fbb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\easyTest.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\RegistrarRefStorage.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\TestCaseRegistrar.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\TestSuite.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\TestSuiteRegistrar.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\ITestListener.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\RTErrorProtector.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\TestRunner.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\i18n\i18n.h">
+      <Filter>src\i18n</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\stats\Chrono.h">
+      <Filter>src\stats</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\stats\CodeTimer.h">
+      <Filter>src\stats</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\output\FormattedBuffer.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\output\JSWriter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\output\LOGWriter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\output\TAPWriter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\output\TestWriter.h">
+      <Filter>src\output</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\RTErrorProtector.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\TestRunner.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\TestSuite.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\i18n\i18n.cpp">
+      <Filter>src\i18n</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\stats\Chrono.cpp">
+      <Filter>src\stats</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\stats\CodeTimer.cpp">
+      <Filter>src\stats</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\output\FormattedBuffer.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\output\JSWriter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\output\LOGWriter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\output\TAPWriter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\output\TestWriter.cpp">
+      <Filter>src\output</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\src\i18n\EN.lang">
+      <Filter>src\i18n</Filter>
+    </None>
+  </ItemGroup>
+</Project>

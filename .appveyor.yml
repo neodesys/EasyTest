@@ -1,0 +1,22 @@
+version: '#{build}-{branch}'
+os: Visual Studio 2015
+configuration:
+- Debug
+- Release
+platform:
+- x86
+- x64
+build:
+  project: ide/msvc/EasyTest++.sln
+  parallel: true
+  verbosity: minimal
+test_script:
+- ps: >-
+    $exe = "bin\Test_EasyTest++_msc"
+
+    if ($env:PLATFORM -eq "x64") {$exe += "64"} else {$exe += "32"}
+
+    if ($env:CONFIGURATION -eq "Debug") {$exe += "_debug.exe"} else {$exe += "_release.exe"}
+
+    & $exe
+

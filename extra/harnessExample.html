@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="EN">
+	<head>
+		<meta charset="UTF-8">
+		<title>EasyTest++ Harness Example</title>
+		<style>
+			body
+			{
+				margin: 5px;
+				padding: 5px;
+				font-family: sans-serif;
+				background: black;
+				color: white;
+			}
+
+			input, select
+			{
+				cursor: pointer;
+			}
+
+			#reset
+			{
+				vertical-align: middle;
+			}
+
+			#runnerSelect, #runnerStart, #runnerExec
+			{
+				display: none;
+			}
+
+			#control, ul.worker
+			{
+				border: grey 1px solid;
+				padding: 10px;
+				margin: 10px;
+			}
+
+			#control
+			{
+				display: block;
+				list-style: none;
+			}
+
+			#progressBar
+			{
+				width: 150px;
+				height: 0.7em;
+				margin-left: 8px;
+				vertical-align: 0;
+			}
+
+			ul.worker
+			{
+				display: inline-block;
+				list-style: inside;
+				vertical-align: top;
+			}
+
+			li.info
+			{
+				color: yellow;
+			}
+
+			li.success
+			{
+				color: green;
+			}
+
+			li.error
+			{
+				color: red;
+			}
+
+			span.copyright
+			{
+				color: grey;
+				font-size: 90%;
+			}
+		</style>
+		<script type="text/javascript">
+			var g_harnessServerUrl = "http://127.0.0.1:8080/";
+
+			function listRunners()
+			{
+				var reset = document.getElementById("reset");
+				reset.disabled = true;
+
+				var runnerExec = document.getElementById("runnerExec");
+				runnerExec.style.display = "none";
+				runnerExec.innerHTML = "";
+
+				var runnerSelect = document.getElementById("runnerSelect");
+				runnerSelect.style.display = "none";
+				runnerSelect.innerHTML = "";
+				runnerSelect.disabled = false;
+
+				var runnerStart = document.getElementById("runnerStart");
+				runnerStart.style.display = "none";
+				runnerStart.disabled = false;
+
+				var req = new XMLHttpRequest();
+				req.open("GET", g_harnessServerUrl, true);
+				req.onreadystatechange = function()
+				{
+					if (req.readyState === 4)
+					{
+						if (req.status === 200)
+						{
+							try
+							{
+								var runners = JSON.parse(req.responseText);
+								var str = "";
+								for (var i = 0; i < runners.length; ++i)
+									str += "<option>" + runners[i] + "</option>";
+
+								if (str)
+								{
+									runnerSelect.innerHTML = str;
+									runnerSelect.style.display = "inline";
+									runnerStart.style.display = "inline";
+								}
+								else
+									alert("No runner available.");
+							}
+							catch (e)
+							{
+								alert("Harness server invalid data: " + e);
+							}
+						}
+						else
+							alert("Harness server doesn't answer.");
+
+						reset.disabled = false;
+					}
+				};
+				req.send(null);
+			}
+
+			function displayTimer(timer)
+			{
+				if (timer)
+				{
+					var t = timer.real;
+					if (t >= 60000000000)
+					{
+						//at least 1 min
+						var min = t / 60000000000;
+						t -= min * 60000000000;
+						t /= 1000000000.0;
+						return min + " min " + t + " sec";
+					}
+					else if (t >= 1000000000)
+					{
+						//at least 1 sec
+						t /= 1000000000.0;
+						return t + " sec";
+					}
+					else if (t >= 1000000)
+					{
+						//at least 1 ms
+						t /= 1000000.0;
+						return t + " ms";
+					}
+					else if (t >= 1000)
+					{
+						//at least 1 us
+						t /= 1000.0;
+						return t + " &mu;s";
+					}
+					else
+					{
+						//only ns
+						return t + " ns";
+					}
+				}
+				else
+					return "no time";
+			}
+
+			function progressAdd(n)
+			{
+				document.getElementById("progressBar").value += n;
+			}
+
+			function getWorkerOutputInfo(obj)
+			{
+				switch (obj.type)
+				{
+					case "suite_error":
+						progressAdd(obj.nbTestCases);
+						return "<li class=\"error\">Error initializing suite [" + obj.testSuiteName + "] with " + obj.nbTestCases + " test case(s)</li>";
+
+					case "suite_start":
+						return "<li>Starting suite [" + obj.testSuiteName + "] with " + obj.nbTotalCases + " test case(s)</li>";
+
+					case "suite_finish":
+						return "<li class=\"" + ((obj.nbFailedCases > 0) ? "error" : "success") + "\">Finished suite with " + obj.nbFailedCases + " failed case(s) in " + displayTimer(obj.timer) + "</li>";
+
+					case "case_start":
+						return "<li>Starting [" + obj.testCaseName + "] test</li>";
+
+					case "case_finish":
+						progressAdd(1);
+						return "<li class=\"" + (obj.bSuccess ? "success" : "error") + "\">Finished test with " + (obj.bSuccess ? "succes" : "failure") + " in " + displayTimer(obj.timer) + "</li>";
+
+					case "trace":
+						return "<li class=\"info\">Trace: " + obj.details + "</li>";
+
+					case "assert":
+						return "<li class=\"info\">Assert: " + obj.details + " in file " + obj.file + ", line " + obj.line + "</li>";
+
+					case "runtime_error":
+						return "<li class=\"info\">Runtime error: " + obj.details + "</li>";
+				}
+			}
+
+			function processEvent(obj)
+			{
+				if (obj)
+				{
+					switch (obj.type)
+					{
+						case "runner_start":
+							var n = obj.nbMaxWorkerThreads;
+							if (n < 1)
+								n = 1;
+
+							var str = "<ul id=\"control\"><li>Starting " + obj.nbTotalSuites + " test suite(s) (" + obj.nbTotalTestCases + " test case(s))";
+							str += "&nbsp;<progress id=\"progressBar\" max=\"" + obj.nbTotalTestCases + "\"></li></ul>";
+							for (var i = 0; i < n; ++i)
+								str += "<ul class=\"worker\" id=\"worker#" + i + "\"><h3>Thread: " + i + "</h3></ul>";
+
+							var runnerExec = document.getElementById("runnerExec");
+							runnerExec.innerHTML = str;
+							runnerExec.style.display = "block";
+							break;
+
+						case "runner_finish":
+							document.getElementById("progressBar").style.display = "none";
+							document.getElementById("control").innerHTML += "<li class=\"" + ((obj.nbFailedSuites > 0) ? "error" : "success") + "\">Tests finished with " + obj.nbFailedSuites + " failed test suite(s) in " + displayTimer(obj.timer) + "</li>";
+							break;
+
+						default:
+							document.getElementById("worker#" + obj.workerThreadIdx).innerHTML += getWorkerOutputInfo(obj);
+							break;
+					}
+				}
+			}
+
+			function startRunner()
+			{
+				var runnerSelect = document.getElementById("runnerSelect");
+				var runner = runnerSelect.options[runnerSelect.selectedIndex].value;
+				if (!runner)
+				{
+					alert("Invalid runner.");
+					return;
+				}
+
+				var reset = document.getElementById("reset");
+				reset.disabled = true;
+
+				var runnerExec = document.getElementById("runnerExec");
+				runnerExec.style.display = "none";
+				runnerExec.innerHTML = "";
+
+				runnerSelect.disabled = true;
+
+				var runnerStart = document.getElementById("runnerStart");
+				runnerStart.disabled = true;
+
+				var req = new XMLHttpRequest();
+				req.open("GET", g_harnessServerUrl + runner, true);
+
+				var parserIdx = 0;
+				var parseAnswer = function()
+				{
+					var resp = req.responseText;
+					if (resp)
+					{
+						for (;;)
+						{
+							var i = resp.indexOf('\n', parserIdx);
+							if (i < 0)
+								break;
+
+							var str = resp.substring(parserIdx, i);
+							parserIdx = i + 1;
+
+							try
+							{
+								if (str)
+									processEvent(JSON.parse(str));
+							}
+							catch (e) {}
+						}
+					}
+				};
+
+				req.onreadystatechange = function()
+				{
+					switch (req.readyState)
+					{
+						case 3:
+							if (req.status === 200)
+								parseAnswer();
+							break;
+
+						case 4:
+							if (req.status === 200)
+								parseAnswer();
+							else
+								alert("Invalid test results.");
+
+							reset.disabled = false;
+							runnerSelect.disabled = false;
+							runnerStart.disabled = false;
+							break;
+					}
+				};
+				req.send(null);
+			}
+		</script>
+	</head>
+	<body onload="listRunners()">
+		<h1>EasyTest++ Harness Example&nbsp;<input id="reset" type="button" value="Reset" onclick="listRunners()"></h1>
+		<hr>
+		<select id="runnerSelect"></select>&nbsp;<input id="runnerStart" type="button" value="Run" onclick="startRunner()">
+		<div id="runnerExec"></div>
+		<hr>
+		<span class="copyright">Released under the MIT license<br>Copyright &copy; 2015, Loïc Le Page</span>
+	</body>
+</html>

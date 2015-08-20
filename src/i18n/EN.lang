@@ -1,0 +1,147 @@
+/**
+ * EasyTest++
+ *
+ * Copyright (c) 2015, Loïc Le Page
+ *
+ * This project is released under the MIT license.
+ * See: http://opensource.org/licenses/MIT
+ */
+
+/* RUNNER_HELP */				"Usage: runner [OPTION...] [TEST_SUITE...]\n"
+								"Executes all unit test suites specified in the optional TEST_SUITE list.\n"
+								"\n"
+								"OPTIONS:\n"
+								"  -h, --help      displays this help.\n"
+								"  -l, --list      lists all unit test suites included in the test runner.\n"
+		#ifndef EASYTEST_NO_THREADS
+								"  -n, --nthreads  sets the maximum number of worker-threads to use while\n"
+								"                  executing unit test suites. The special value \"max\"\n"
+								"                  corresponds to the maximum number of hardware threads\n"
+								"                  available. This is the default value if the option is not\n"
+								"                  specified.\n"
+		#endif //!EASYTEST_NO_THREADS
+								"  -o, --out       writes unit tests results to the specified file. If not\n"
+								"                  specified, unit tests results are written to the default\n"
+								"                  output (stdout).\n"
+								"  -t, --type      specifies the format of unit tests results. Valid formats\n"
+								"                  are: \"log\" (default), \"js\" and \"tap\".\n"
+								"  -v, --verbose   writes extra information to unit tests results, including\n"
+								"                  asserts failures and traces.\n"
+								"  -s, --stats     writes execution times for all unit test cases and test\n"
+								"                  suites in tests results.\n"
+								"\n"
+								"By default, if no unit test suite is specified in the arguments list, all test\n"
+								"suites included in the test runner are executed once.\n"
+								"\n"
+								"If a unit test suite is specified more than once, it will be executed many\n"
+								"times.\n"
+								"\n"
+								"Unknown test suites which are not included in the test runner are just ignored.\n"
+								"\n"
+								"Options and test suites names are NOT case sensitive.\n"
+								"\n"
+								"The output format \"js\" produces a valid JavaScript literal array in verbose\n"
+								"mode (option -v or --verbose) and pure JSON data in normal mode.\n"
+								"\n"
+		#ifdef _WIN32
+								"Process and thread timers in Windows have a really bad resolution (superior to\n"
+								"tens of ms), so their values are not really meaningful for normal test cases\n"
+								"which execute in a few nano or micro-seconds.\n"
+								"\n"
+		#endif //_WIN32
+								,
+
+/* INVALID_ARGS */				"Invalid arguments, please start runner with -h option for help.\n",
+/* OUT_OF_MEMORY */				"Out of memory.\n",
+/* UNKNOWN_TEST_SUITE */		"Unknown test suite(s).\n",
+/* CANNOT_WRITE_FILE */			"Cannot open output file for writing.\n",
+/* CANNOT_START_RUNNER */		"Error: cannot start test runner.\n",
+
+/* TIME_UNIT_MIN */				" min ",
+/* TIME_UNIT_SEC */				" sec",
+/* TIME_UNIT_MS */				" ms",
+/* TIME_UNIT_US */				" us",
+/* TIME_UNIT_NS */				" ns",
+/* TIME_PREFIX_REAL */			"[real]: ",
+/* TIME_PREFIX_PROC */			", [proc]: ",
+/* TIME_PREFIX_THREAD */		", [thrd]: ",
+/* STATS_NOT_AVAILABLE */		"(stats not available)",
+
+//WARNING: ASSERT_FAIL_* strings MUST NOT contain invalid JSON characters ["\\b\f\n\r\t]
+/* ASSERT_FAIL_UNARY */			"has failed",
+/* ASSERT_FAIL_TRUE */			"is not true",
+/* ASSERT_FAIL_FALSE */			"is not false",
+/* ASSERT_FAIL_NAN */			"is not NaN",
+/* ASSERT_FAIL_INFINITE */		"is not an infinite number",
+/* ASSERT_FAIL_FINITE */		"is not a finite number",
+/* ASSERT_FAIL_BINARY */		"has a problem with",
+/* ASSERT_FAIL_LT */			"is greater or equal to",
+/* ASSERT_FAIL_LE */			"is greater than",
+/* ASSERT_FAIL_GT */			"is less or equal to",
+/* ASSERT_FAIL_GE */			"is less than",
+/* ASSERT_FAIL_EQUAL */			"is different from",
+/* ASSERT_FAIL_DIFF */			"is equal to",
+/* ASSERT_FAIL_ALMOST_EQ */		"is very different from",
+/* ASSERT_FAIL_VERY_DIFF */		"is almost equal to",
+/* ASSERT_FAIL_BIT_EQUAL */		"is bitwise different from",
+/* ASSERT_FAIL_BIT_DIFF */		"is bitwise equal to",
+/* ASSERT_FAIL_SAME_DATA */		"has different data from",
+/* ASSERT_FAIL_DIFF_DATA */		"has same data as",
+
+//WARNING: RTERROR_* strings MUST NOT contain invalid JSON characters ["\\b\f\n\r\t]
+/* RTERROR_UNDEFINED */			"undefined runtime error",
+/* RTERROR_UNDEF_CPP_EXCEPT */	"undefined C++ exception (uncaught)",
+/* RTERROR_CPP_EXCEPT */		"normal C++ exception (uncaught): %s",
+/* RTERROR_MEM_NOT_MAPPED */	"access to a virtual memory address not mapped",
+/* RTERROR_MEM_ACCESS_VIOL */	"no permission to acces to a mapped memory address",
+/* RTERROR_MEM_BUS_ERROR */		"memory bus error (non existent physical address or other hardware error)",
+/* RTERROR_MEM_MISALIGNMENT */	"access to misaligned address in memory",
+/* RTERROR_INSTR_ERROR */		"error while executing an instruction (coprocessor or internal stack error)",
+/* RTERROR_INSTR_ILLEGAL */		"execution of an illegal instruction",
+/* RTERROR_INSTR_PRIV */		"execution of a priviledged instruction",
+/* RTERROR_INT_DIV_BY_ZERO */	"integer division by zero",
+/* RTERROR_INT_OVERFLOW */		"integer overflow",
+/* RTERROR_FLOAT_ERROR */		"undefined floating-point error",
+/* RTERROR_FLOAT_DIV_BY_ZERO */	"floating-point division by zero",
+/* RTERROR_FLOAT_OVERFLOW */	"floating-point overflow",
+/* RTERROR_FLOAT_UNDERFLOW */	"floating-point underflow",
+/* RTERROR_FLOAT_BAD_RESULT */	"inexact floating-point result",
+/* RTERROR_FLOAT_INVALID_OP */	"invalid floating-point operation",
+/* RTERROR_ARRAY_OOB */			"index access outside of the bounds of an array",
+/* RTERROR_SYSTEM_ERROR */		"bad argument passed to a system call",
+/* RTERROR_BROKEN_PIPE */		"write to a pipe or socket with no reader",
+/* RTERROR_FILE_OVER_LIMIT */	"file size limit has been exceeded",
+
+/* LOG_RUNNER_START */			"Starting runner with %zu test suite(s) (%zu test case(s))",
+/* LOG_RUNNER_USING_THREADS */	", using %u worker-thread(s)",
+/* LOG_RUNNER_FINISH_VERB */	"Finished runner with %zu success(es) and %zu failure(s) over %zu test suite(s).\n",
+/* LOG_RUNNER_FINISH_INTERR */	"Interrupted runner with errors (%zu failed test suite(s) and %zu test suite(s) not executed).\n",
+/* LOG_RUNNER_FINISH_INTOK */	"Interrupted runner with no error (%zu test suite(s) not executed).\n",
+/* LOG_RUNNER_FINISH_ERR */		"Failed runner (%zu failed test suite(s)).\n",
+/* LOG_RUNNER_FINISH_OK */		"Successful runner over %zu test suite(s).\n",
+/* LOG_TOTAL_EXEC_TIME */		"Total execution time ",
+/* LOG_FAILED_SUITE */			"Failed test suite [%s] initialization (%zu skipped test case(s)).\n",
+/* LOG_SUITE_START */			"Starting test suite [%s] with %zu test case(s)...\n",
+/* LOG_SUITE_FINISH_VERB */		"Finished test suite [%s] with %zu success(es) and %zu failure(s) over %zu test case(s).",
+/* LOG_SUITE_FINISH_INTERR */	"Interrupted test suite [%s] with errors (%zu failed test case(s) and %zu test case(s) not executed).",
+/* LOG_SUITE_FINISH_INTOK */	"Interrupted test suite [%s] with no error (%zu test case(s) not executed).",
+/* LOG_SUITE_FINISH_ERR */		"Failed test suite [%s] (%zu failed test case(s)).",
+/* LOG_SUITE_FINISH_OK */		"Successful test suite [%s] over %zu test case(s).",
+/* LOG_EXEC_TIME */				"Execution time ",
+/* LOG_CASE_START */			"Starting test case [%s] in suite [%s]...\n",
+/* LOG_CASE_FINISH_VERB */		"Finished test case [%s] in suite [%s] with %s.",
+/* LOG_CASE_SUCCESS */			"success",
+/* LOG_CASE_FAILURE */			"failure",
+/* LOG_CASE_FINISH_ERR */		"Failed test case [%s::%s].",
+/* LOG_CASE_FINISH_OK */		"Successful test case [%s::%s].",
+/* LOG_TRACE_HEADER */			"    TRACE[%s, %s, l.%u]: ",
+/* LOG_ASSERT_HEADER */			"    ASSERT[%s, %s, l.%u]: ",
+/* LOG_RTERROR_HEADER */		"    RUNTIME_ERROR: ",
+
+/* TAP_RUNNER_START */			"# Running %zu test suite(s)\n",
+/* TAP_RUNNER_USING_THREADS */	"# using %u worker-thread(s)\n",
+/* TAP_TOTAL_EXEC_TIME */		"# Total execution time\n# ",
+/* TAP_FAILED_SUITE */			"Cannot initialize [%s] test suite\n",
+/* TAP_TRACE_HEADER */			"# TRACE[%s, %s, l.%u]: ",
+/* TAP_ASSERT_HEADER */			"# ASSERT[%s, %s, l.%u]: ",
+/* TAP_RTERROR_HEADER */		"# RUNTIME_ERROR: "

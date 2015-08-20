@@ -1,0 +1,3 @@
+target extended-remote :6400
+set remote exec-file EasyTest++/bin/Test_EasyTest++_mingw64_debug.exe
+handle all nostop noprint pass

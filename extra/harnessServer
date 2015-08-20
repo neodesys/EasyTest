@@ -1,0 +1,136 @@
+#!/bin/bash
+#------------------------------------------------------------------------------#
+# EasyTest++
+#
+# Copyright (c) 2015, Loïc Le Page
+#
+# This project is released under the MIT license.
+# See: http://opensource.org/licenses/MIT
+#------------------------------------------------------------------------------#
+
+#------------------------------------------------------------------------------#
+# Server configuration
+#------------------------------------------------------------------------------#
+
+readonly LISTEN_ADDR="127.0.0.1"
+readonly LISTEN_PORT="8080"
+
+readonly RUNNER_DIR="../bin"
+
+#------------------------------------------------------------------------------#
+# Print out HTTP/1.1 OK header function
+#------------------------------------------------------------------------------#
+
+function printOKHeader
+{
+	echo "HTTP/1.1 200 OK"
+	echo "Cache-Control: private, max-age=0, no-cache, no-store"
+	echo "Access-Control-Allow-Origin: *"
+	echo "Content-Type: application/json; charset=utf-8"
+	echo "Date: `date --rfc-2822`"
+	echo "Connection: close"
+	echo
+}
+
+#------------------------------------------------------------------------------#
+# Print out HTTP/1.1 404 error function
+#------------------------------------------------------------------------------#
+
+function print404Error
+{
+	echo "HTTP/1.1 404 Not Found"
+	echo "Access-Control-Allow-Origin: *"
+	echo "Connection: close"
+	echo
+	echo "Not Found"
+}
+
+#------------------------------------------------------------------------------#
+# Server main entry point
+#------------------------------------------------------------------------------#
+
+readonly FIFO=/tmp/harnessServer
+
+if [ -e $FIFO ]; then
+	echo -e "\033[1;31mHarness server is already running.\033[0m" >&2
+	exit 1
+fi
+
+trap 'rm -f $FIFO; exit 0' SIGHUP SIGINT SIGQUIT SIGABRT SIGKILL SIGTERM
+mkfifo $FIFO
+
+exec 3>&1
+while /bin/true; do
+	nc -l $LISTEN_ADDR $LISTEN_PORT 2>/dev/null <$FIFO | while read LINE; do
+		#We only answer to "GET /... HTTP/#.#" requests
+		#All other requests are ignored
+
+		if [[ "$LINE" =~ ^GET\ \/.*\ HTTP\/[0-9]\.[0-9] ]]; then
+			LINE=${LINE:5}
+			LINE=${LINE%% HTTP/[0-9].[0-9]*}
+
+			if [ -z "$LINE" ]; then
+				#/ returns the list of runners
+
+				printOKHeader
+				RUNNER_LIST=`find "$RUNNER_DIR" -maxdepth 1 -executable -type f -printf ",\"%f\"" 2>/dev/null`
+				echo "[${RUNNER_LIST:1}]"
+			else
+				RUNNER=`echo "$LINE" | sed -e "s;[/?].*$;;" -e "s/%20/ /g"`
+				if [ -n "$RUNNER" -a -x "$RUNNER_DIR/$RUNNER" -a ! -d "$RUNNER_DIR/$RUNNER" ]; then
+					#Request sent to a valid runner
+
+					TEST_SUITES=`echo "$LINE" | sed -e "s;^[^/?]*;;"`
+					if [ "$TEST_SUITES" = "/list" ]; then
+						#/[runner]/list returns the list of test suites provided by [runner]
+
+						printOKHeader
+						SUITE_LIST=`"$RUNNER_DIR/$RUNNER" -l 2>/dev/null | while read SUITE; do echo -n ",\"$SUITE\"" | sed -e "s/\r//g"; done`
+						echo "[${SUITE_LIST:1}]"
+					else
+						#/[runner]?suite1&suite2... returns the [runner] results for suite1, suite2...
+
+						TEST_SUITES=${TEST_SUITES#/}
+						if [ -n "${TEST_SUITES:0:1}" -a "${TEST_SUITES:0:1}" != "?" ]; then
+							#Malformed request: invalid test suites format
+							print404Error
+						else
+							printOKHeader
+							TEST_SUITES=`echo "${TEST_SUITES#?}" | sed -e "s/\s*=[^&]*//g" -e "s/&/ /g"`
+							"$RUNNER_DIR/$RUNNER" -st js $TEST_SUITES 2>/dev/null
+							RUNNER_ERRORS=$?
+
+							if [ -n "$TEST_SUITES" ]; then
+								TEST_SUITES="(${TEST_SUITES// /, }) "
+							fi
+
+							#Print log to stdout
+							if [ $RUNNER_ERRORS -eq 0 ]; then
+								echo "[`date --iso-8601=seconds`] $RUNNER ${TEST_SUITES}executed with success." >&3
+							elif [ $RUNNER_ERRORS -eq 255 ]; then
+								echo "[`date --iso-8601=seconds`] $RUNNER ${TEST_SUITES}failed." >&3
+							else
+								echo "[`date --iso-8601=seconds`] $RUNNER ${TEST_SUITES}failed with $RUNNER_ERRORS error(s)." >&3
+							fi
+						fi
+					fi
+				else
+					#Request sent to an unknown runner
+					print404Error
+				fi
+			fi
+
+			#Close the connection
+			exec 1>&-
+		fi
+	done >$FIFO
+
+	if [ ${PIPESTATUS[0]} -ne 0 ]; then
+		echo -e "\033[1;31mCannot start harness server.\033[0m" >&2
+		rm -f $FIFO
+		exit 2
+	fi
+done
+
+rm -f $FIFO
+exit 0
