@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>EasyTest++ by neodesys</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">EasyTest++</h1>
+      <h2 class="project-tagline">Lightweight and easy to use C++ unit testing framework.</h2>
+      <a href="https://github.com/neodesys/EasyTest" class="btn">View on GitHub</a>
+      <a href="https://github.com/neodesys/EasyTest/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/neodesys/EasyTest/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="easytest" class="anchor" href="#easytest" aria-hidden="true"><span class="octicon octicon-link"></span></a>EasyTest++</h1>
+
+<p>EasyTest++ is a lightweight and easy to use C++ unit testing framework released under the <a href="https://github.com/neodesys/EasyTest/blob/master/LICENSE">MIT license</a>.</p>
+
+<h2>
+<a id="why-to-use-it-" class="anchor" href="#why-to-use-it-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why to use it ?</h2>
+
+<ul>
+<li>lightweight C++11 unit testing framework</li>
+<li>xUnit architecture with assertions and fixtures</li>
+<li>single static library, no external dependencies (except <code>pthread</code> under Linux)</li>
+<li>auto-registration of test suites and test cases</li>
+<li>measures execution times of all test cases and test suites</li>
+<li>integrated test runner with parallel execution of test suites</li>
+<li>multiple internationalized output formats: log, TAP, JavaScript and JSON</li>
+<li>easily integrated with custom test harnesses or results formatters in HTML</li>
+<li>neither relies on C++ exceptions nor RTTI</li>
+<li>intercepts uncaught C++ exceptions and runtime errors (floating-point exceptions, illegal instructions, divisions by zero, memory access violation, etc...)</li>
+<li>available on Linux and Windows for 32 and 64 bits architectures</li>
+</ul>
+
+<hr>
+
+<h2>
+<a id="how-to-use-it-" class="anchor" href="#how-to-use-it-" aria-hidden="true"><span class="octicon octicon-link"></span></a>How to use it ?</h2>
+
+<p>Download the
+<a href="https://github.com/neodesys/easytest/releases/latest">latest release</a> and extract it to a folder named <em>EasyTest++</em>.</p>
+
+<p>Write your first unit test suite: <em>MyTestSuite.cpp</em>.</p>
+
+<div class="highlight highlight-cpp"><pre>#<span class="pl-k">include</span> <span class="pl-s"><span class="pl-pds">&lt;</span>easyTest.h<span class="pl-pds">&gt;</span></span>
+
+<span class="pl-en">TEST_SUITE</span>(MyTestSuite)
+{
+    <span class="pl-c1">TEST_CASE</span>(addition);
+    <span class="pl-c1">TEST_CASE</span>(division);
+};
+
+<span class="pl-en">TEST_IMPL</span>(MyTestSuite, addition)
+{
+    <span class="pl-c1">ASSERT_EQUAL</span>(<span class="pl-c1">1</span> + <span class="pl-c1">1</span>, <span class="pl-c1">2</span>);
+    <span class="pl-k">return</span> <span class="pl-c1">true</span>;
+}
+
+<span class="pl-en">TEST_IMPL</span>(MyTestSuite, division)
+{
+    <span class="pl-c1">ASSERT_ALMOST_EQUAL</span>(<span class="pl-c1">1.0</span> / <span class="pl-c1">3.0</span>, <span class="pl-c1">0.3333</span>, <span class="pl-c1">0.0001</span>);
+    <span class="pl-c1">TRACE</span>(<span class="pl-s"><span class="pl-pds">"</span>no issue with doubles<span class="pl-pds">"</span></span>);
+
+    <span class="pl-c1">ASSERT_ALMOST_EQUAL</span>(<span class="pl-c1">1</span>.<span class="pl-smi">f</span> / <span class="pl-c1">3</span>.<span class="pl-smi">f</span>, <span class="pl-c1">0</span>.<span class="pl-c1">333f</span>, <span class="pl-c1">0</span>.<span class="pl-c1">001f</span>);
+    <span class="pl-c1">TRACE</span>(<span class="pl-s"><span class="pl-pds">"</span>no issue with floats<span class="pl-pds">"</span></span>);
+
+    <span class="pl-k">return</span> <span class="pl-c1">true</span>;
+}</pre></div>
+
+<p>Build the test runner and you're ready!</p>
+
+<pre><code>$ g++ -std=c++11 -I./EasyTest++/include -o Test_MyTestSuite MyTestSuite.cpp -pthread -L./EasyTest++/lib -lEasyTest++_linux64
+$ ./Test_MyTestSuite -sv
+</code></pre>
+
+<hr>
+
+<h2>
+<a id="want-to-know-more-" class="anchor" href="#want-to-know-more-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Want to know more ?</h2>
+
+<p>Just go to the <a href="https://github.com/neodesys/EasyTest">GitHub project page</a>.</p>
+
+<p>You will find detailed information about how to <a href="https://github.com/neodesys/EasyTest/blob/master/doc/Build.md">build EasyTest++</a> yourself and how to <a href="https://github.com/neodesys/EasyTest/blob/master/doc/Usage.md">use it</a>.</p>
+
+<p>If you have any question, any issue or great ideas to make it better, please <a href="https://github.com/neodesys/EasyTest/issues">post an issue</a> on the project page.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/neodesys/EasyTest">EasyTest++</a> is maintained by <a href="https://github.com/neodesys">neodesys</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-66596642-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
